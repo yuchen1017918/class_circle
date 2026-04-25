@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级圈 - 班级智慧交流系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 登录页 -->
+    <div class="login-box" id="loginPage">
+        <h2>班级圈 - 登录</h2>
+
+        <div class="input-item">
+            <label for="loginRole">身份</label>
+            <select id="loginRole">
+                <option value="student">学生</option>
+                <option value="teacher">教师</option>
+                <option value="master">班主任</option>
+            </select>
+        </div>
+
+        <div class="input-item">
+            <label for="loginSchool">学校</label>
+            <input type="text" id="loginSchool" placeholder="请输入学校">
+        </div>
+
+        <div class="input-item">
+            <label for="loginClass">班级</label>
+            <input type="text" id="loginClass" placeholder="请输入班级">
+        </div>
+
+        <div class="input-item">
+            <label for="loginName">姓名</label>
+            <input type="text" id="loginName" placeholder="请输入姓名" oninput="autoFillSno()">
+        </div>
+
+        <div class="input-item">
+            <label for="loginSno">学号/工号</label>
+            <input type="text" id="loginSno" placeholder="输入姓名后自动匹配">
+        </div>
+
+        <div class="input-item">
+            <label for="loginPwd">密码</label>
+            <input type="password" id="loginPwd" placeholder="请输入密码">
+        </div>
+
+        <div class="error-msg" id="loginErr"></div>
+        <button class="login-btn" onclick="handleLogin()">登录</button>
+        <p class="tip">没有账号？<span onclick="showReg()">立即注册</span></p>
+    </div>
+
+    <!-- 注册页 -->
+    <div class="login-box reg-page" id="regPage">
+        <h2>班级圈 - 注册</h2>
+
+        <div class="input-item">
+            <label for="regRole">身份</label>
+            <select id="regRole">
+                <option value="student">学生</option>
+                <option value="teacher">教师</option>
+                <option value="master">班主任</option>
+            </select>
+        </div>
+
+        <div class="input-item">
+            <label for="regSchool">学校</label>
+            <input type="text" id="regSchool" placeholder="请输入学校">
+        </div>
+
+        <div class="input-item">
+            <label for="regClass">班级</label>
+            <input type="text" id="regClass" placeholder="请输入班级">
+        </div>
+
+        <div class="input-item">
+            <label for="regName">姓名</label>
+            <input type="text" id="regName" placeholder="请输入姓名">
+        </div>
+
+        <div class="input-item">
+            <label for="regSno">学号/工号</label>
+            <input type="text" id="regSno" placeholder="请输入学号/工号">
+        </div>
+
+        <div class="input-item">
+            <label for="regPwd">密码</label>
+            <input type="password" id="regPwd" placeholder="请设置密码">
+        </div>
+
+        <div class="error-msg" id="regErr"></div>
+        <button class="login-btn" onclick="handleReg()">注册</button>
+        <p class="tip">已有账号？<span onclick="showLogin()">返回登录</span></p>
+    </div>
+
+    <!-- 主界面 -->
+    <div class="container" id="mainPage">
+        <div class="header">
+            <h2>班级圈</h2>
+            <div id="userInfo"></div>
+        </div>
+
+        <div class="nav">
+            <button class="active" onclick="goPage('home')">首页</button>
+            <button onclick="goPage('notice')">班级通知</button>
+            <button onclick="goPage('task')">作业管理</button>
+            <button onclick="goPage('circle')">班级动态</button>
+            <button onclick="goPage('user')">个人中心</button>
+        </div>
+
+        <div class="page show" id="home">
+            <h3>首页概况</h3><br>
+            <div class="card">
+                <h4>今日作业：数学试卷</h4>
+                <p>截止时间：2025-12-20 22:00</p>
+            </div>
+            <div class="card">
+                <h4>最新通知：明天早读检查背诵</h4>
+                <p>发布人：李老师</p>
+            </div>
+        </div>
+
+        <div class="page" id="notice">
+            <h3>班级通知</h3><br>
+            <div class="card">
+                <h4>【重要】本周五期中考试</h4>
+                <p>时间：8:00-10:00</p>
+            </div>
+        </div>
+
+        <div class="page" id="task">
+            <h3>作业管理</h3><br>
+            <div class="card">
+                <h4>数学：完成模拟卷第3套</h4>
+                <p>提交状态：未提交</p>
+            </div>
+        </div>
+
+        <div class="page" id="circle">
+            <h3>班级动态</h3><br>
+            <div class="publish-box">
+                <textarea placeholder="分享学习、活动、心情..."></textarea>
+                <button class="publish-btn">发布动态</button>
+            </div>
+        </div>
+
+        <div class="page" id="user">
+            <h3>个人中心</h3><br>
+            <p>身份：<span id="uRole"></span></p>
+            <p>学校：<span id="uSchool"></span></p>
+            <p>班级：<span id="uClass"></span></p>
+            <p>姓名：<span id="uName"></span></p>
+            <p>学号/工号：<span id="uSno"></span></p><br>
+            <button onclick="logout()" class="logout-btn">退出登录</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
