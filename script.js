@@ -1,152 +1,146 @@
-// 角色映射
-const roleMap = {
-    student: "学生",
-    teacher: "教师",
-    master: "班主任"
-};
-
-// ====================== 默认学校 / 默认班级（你可以自己改）
-const DEFAULT_SCHOOL = "杭州市东城第二实验学校";
-const DEFAULT_CLASS = "六年级（6）班";
-// ======================
-
-// 获取用户列表
-function getUserList() {
-    return JSON.parse(localStorage.getItem("userList")) || [];
+// 公共存储键名
+const STORAGE_KEYS = {
+    USERS: 'classSystem_users',
+    CURRENT_USER: 'classSystem_currentUser',
+    NOTICES: 'classSystem_notices',
+    CHATS: 'classSystem_chats',
+    MATERIALS: 'classSystem_materials',
+    HOMEWORKS: 'classSystem_homeworks',
+    ANNOUNCES: 'classSystem_announces',
+    REMEMBER: 'classSystem_remember'
 }
 
-// 切换页面
-function showReg() {
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("regPage").style.display = "block";
+// 初始化默认数据
+function initDefaultData() {
+    if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+        const defaultUsers = [
+            { role: 'teacher', school: '实验中学', className: '高三1班', name: '张老师', userNo: 'T001', password: '123456', phone: '' },
+            { role: 'student', school: '实验中学', className: '高三1班', name: '小明', userNo: 'S001', password: '123456', phone: '' }
+        ]
+        saveData(STORAGE_KEYS.USERS, defaultUsers)
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.NOTICES)) saveData(STORAGE_KEYS.NOTICES, [])
+    if (!localStorage.getItem(STORAGE_KEYS.CHATS)) saveData(STORAGE_KEYS.CHATS, [])
+    if (!localStorage.getItem(STORAGE_KEYS.MATERIALS)) saveData(STORAGE_KEYS.MATERIALS, [])
+    if (!localStorage.getItem(STORAGE_KEYS.HOMEWORKS)) saveData(STORAGE_KEYS.HOMEWORKS, [])
+    if (!localStorage.getItem(STORAGE_KEYS.ANNOUNCES)) saveData(STORAGE_KEYS.ANNOUNCES, [])
+}
+
+// 本地存储操作
+function saveData(key, data) {
+    localStorage.setItem(key, JSON.stringify(data))
+}
+function getData(key) {
+    return JSON.parse(localStorage.getItem(key)) || []
+}
+function getCurrentUser() {
+    return getData(STORAGE_KEYS.CURRENT_USER)
+}
+
+// Toast提示
+function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast')
+    toast.textContent = msg
+    toast.style.background = type === 'success' ? 'var(--success)' : 'var(--danger)'
+    toast.style.display = 'block'
+    setTimeout(() => toast.style.display = 'none', 2000)
+}
+
+// 格式化时间
+function formatTime(timestamp = new Date().getTime()) {
+    const date = new Date(timestamp)
+    return date.getFullYear() + '-' + 
+           String(date.getMonth()+1).padStart(2,'0') + '-' + 
+           String(date.getDate()).padStart(2,'0') + ' ' + 
+           String(date.getHours()).padStart(2,'0') + ':' + 
+           String(date.getMinutes()).padStart(2,'0')
+}
+
+// 权限控制
+function checkPermission() {
+    const user = getCurrentUser()
+    if (!user) {
+        location.href = 'login.html'
+        return
+    }
+    // 渲染用户信息
+    document.getElementById('userName').textContent = user.name
+    document.getElementById('userRole').textContent = user.role === 'teacher' ? '教师' : '学生'
     
-    // 注册页自动填默认学校、班级
-    document.getElementById("regSchool").value = DEFAULT_SCHOOL;
-    document.getElementById("regClass").value = DEFAULT_CLASS;
-}
-function showLogin() {
-    document.getElementById("regPage").style.display = "none";
-    document.getElementById("loginPage").style.display = "block";
-    document.getElementById("regErr").innerText = "";
-}
-
-// 页面加载时自动填充默认学校、班级
-window.onload = function () {
-    // 登录页默认值
-    document.getElementById("loginSchool").value = DEFAULT_SCHOOL;
-    document.getElementById("loginClass").value = DEFAULT_CLASS;
-
-    let u = localStorage.getItem("currentUser");
-    if (u) showMain(JSON.parse(u));
-};
-
-// 注册
-function handleReg() {
-    let role = document.getElementById("regRole").value;
-    let school = document.getElementById("regSchool").value.trim();
-    let className = document.getElementById("regClass").value.trim();
-    let name = document.getElementById("regName").value.trim();
-    let sno = document.getElementById("regSno").value.trim();
-    let pwd = document.getElementById("regPwd").value.trim();
-    let err = document.getElementById("regErr");
-
-    if (!school || !className || !name || !sno || !pwd) {
-        err.innerText = "请填写完整信息";
-        return;
+    // 教师权限按钮显示
+    if (user.role === 'teacher') {
+        document.querySelectorAll('.teacher-only').forEach(el => el.style.display = 'block')
     }
-
-    let list = getUserList();
-    let has = list.find(item => item.sno === sno);
-    if (has) {
-        err.innerText = "该学号/工号已注册";
-        return;
-    }
-
-    list.push({ role, school, class: className, name, sno, pwd });
-    localStorage.setItem("userList", JSON.stringify(list));
-    alert("注册成功！");
-    showLogin();
+    // 未读通知红点
+    const notices = getData(STORAGE_KEYS.NOTICES)
+    const unread = notices.filter(n => !n.isRead).length
+    if (unread > 0) document.getElementById('noticeDot').style.display = 'block'
 }
 
-// 登录：输入姓名 → 自动匹配学号
-function autoFillSno() {
-    let name = document.getElementById("loginName").value.trim();
-    let school = document.getElementById("loginSchool").value.trim();
-    let className = document.getElementById("loginClass").value.trim();
-    let role = document.getElementById("loginRole").value;
-    let list = getUserList();
+// 路由切换
+function initRoute() {
+    const navItems = document.querySelectorAll('.nav-item')
+    const sections = document.querySelectorAll('.content-section')
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // 侧边栏移动端折叠
+            document.getElementById('sidebar').classList.remove('show')
+            // 激活状态
+            navItems.forEach(i => i.classList.remove('active'))
+            item.classList.add('active')
+            // 切换内容
+            const target = item.dataset.target
+            sections.forEach(sec => sec.classList.remove('active'))
+            document.getElementById(`${target}Section`).classList.add('active')
+        })
+    })
 
-    let user = list.find(u =>
-        u.name === name &&
-        u.school === school &&
-        u.class === className &&
-        u.role === role
-    );
-
-    if (user) {
-        document.getElementById("loginSno").value = user.sno;
-    } else {
-        document.getElementById("loginSno").value = "";
-    }
+    // 汉堡菜单
+    document.getElementById('hamburger').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('show')
+    })
 }
 
-// 登录验证
-function handleLogin() {
-    let role = document.getElementById("loginRole").value;
-    let school = document.getElementById("loginSchool").value.trim();
-    let className = document.getElementById("loginClass").value.trim();
-    let name = document.getElementById("loginName").value.trim();
-    let sno = document.getElementById("loginSno").value.trim();
-    let pwd = document.getElementById("loginPwd").value.trim();
-    let err = document.getElementById("loginErr");
-
-    if (!school || !className || !name || !sno || !pwd) {
-        err.innerText = "请填写完整信息";
-        return;
-    }
-
-    let list = getUserList();
-    let user = list.find(u =>
-        u.role === role &&
-        u.school === school &&
-        u.class === className &&
-        u.name === name &&
-        u.sno === sno &&
-        u.pwd === pwd
-    );
-
-    if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        showMain(user);
-    } else {
-        err.innerText = "信息不匹配，登录失败";
-    }
-}
-
-// 显示主页
-function showMain(user) {
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("regPage").style.display = "none";
-    document.getElementById("mainPage").style.display = "block";
-
-    document.getElementById("userInfo").innerText = `${roleMap[user.role]} - ${user.name}`;
-    document.getElementById("uRole").innerText = roleMap[user.role];
-    document.getElementById("uSchool").innerText = user.school;
-    document.getElementById("uClass").innerText = user.class;
-    document.getElementById("uName").innerText = user.name;
-    document.getElementById("uSno").innerText = user.sno;
+// 夜间模式
+function initDarkMode() {
+    const btn = document.getElementById('darkModeBtn')
+    btn.addEventListener('click', () => {
+        document.body.classList.toggle('dark')
+        btn.textContent = document.body.classList.contains('dark') ? '☀️ 日间模式' : '🌙 夜间模式'
+    })
 }
 
 // 退出登录
-function logout() {
-    localStorage.removeItem("currentUser");
-    location.reload();
+function initLogout() {
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER)
+        showToast('退出成功')
+        setTimeout(() => location.href = 'login.html', 1000)
+    })
 }
 
-// 切换页面
-function goPage(id) {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("show"));
-    document.getElementById(id).classList.add("show");
-    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-    event.target.classList.add("active");
+// 通用弹窗
+function openModal(html) {
+    document.getElementById('modalBody').innerHTML = html
+    document.getElementById('commonModal').style.display = 'block'
 }
+function closeModal() {
+    document.getElementById('commonModal').style.display = 'none'
+}
+
+// 初始化
+window.addEventListener('DOMContentLoaded', () => {
+    initDefaultData()
+    checkPermission()
+    initRoute()
+    initDarkMode()
+    initLogout()
+    
+    // 关闭弹窗
+    document.querySelectorAll('.close').forEach(el => {
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none')
+        })
+    })
+})

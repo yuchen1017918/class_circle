@@ -3,159 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>班级圈 - 班级智慧交流系统</title>
+    <title>班级交流系统 - 首页</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <!-- 登录页 -->
-    <div class="login-box" id="loginPage">
-        <h2>班级圈 - 登录</h2>
-
-        <div class="input-item">
-            <label for="loginRole">身份</label>
-            <select id="loginRole">
-                <option value="student">学生</option>
-                <option value="teacher">教师</option>
-                <option value="master">班主任</option>
-            </select>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="logo">
+            <h2>🎓 班级交流系统</h2>
         </div>
-
-        <div class="input-item">
-            <label for="loginSchool">学校</label>
-            <input type="text" id="loginSchool" placeholder="请输入学校">
+        <div class="user-info">
+            <span id="userName">加载中...</span>
+            <span id="userRole" class="role-tag">学生</span>
+            <button id="logoutBtn" class="btn logout-btn">退出登录</button>
+            <button id="darkModeBtn" class="btn dark-btn">🌙 夜间模式</button>
         </div>
+        <div class="hamburger" id="hamburger">☰</div>
+    </header>
 
-        <div class="input-item">
-            <label for="loginClass">班级</label>
-            <input type="text" id="loginClass" placeholder="请输入班级">
-        </div>
+    <div class="main-wrapper">
+        <!-- 侧边导航栏 -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="nav-list">
+                <li data-target="chat" class="nav-item active">💬 班级聊天</li>
+                <li data-target="notification" class="nav-item">📢 系统通知 <span class="red-dot" id="noticeDot"></span></li>
+                <li data-target="material" class="nav-item">📚 学习资料</li>
+                <li data-target="homework" class="nav-item">📝 家校本</li>
+                <li data-target="announcement" class="nav-item">📌 班级公告</li>
+                <li data-target="personal" class="nav-item">👤 个人中心</li>
+            </ul>
+        </aside>
 
-        <div class="input-item">
-            <label for="loginName">姓名</label>
-            <input type="text" id="loginName" placeholder="请输入姓名" oninput="autoFillSno()">
-        </div>
+        <!-- 主内容区 -->
+        <main class="content">
+            <!-- 聊天模块 -->
+            <section id="chatSection" class="content-section active">
+                <div class="section-header">
+                    <h3>班级聊天</h3>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-list">
+                        <div class="chat-item active" data-type="class">班级群</div>
+                        <div class="chat-item" data-type="teacher">班主任</div>
+                    </div>
+                    <div class="chat-window">
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input">
+                            <button id="emojiBtn">😊</button>
+                            <input type="text" id="msgInput" placeholder="输入消息...">
+                            <button id="sendBtn" class="btn">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-        <div class="input-item">
-            <label for="loginSno">学号/工号</label>
-            <input type="text" id="loginSno" placeholder="输入姓名后自动匹配">
-        </div>
+            <!-- 通知模块 -->
+            <section id="notificationSection" class="content-section">
+                <div class="section-header">
+                    <h3>系统通知</h3>
+                    <button id="publishNoticeBtn" class="btn teacher-only">发布通知</button>
+                    <select id="noticeSort" class="sort-select">
+                        <option value="time">按时间排序</option>
+                        <option value="level">按重要程度</option>
+                    </select>
+                </div>
+                <div class="notice-list" id="noticeList"></div>
+            </section>
 
-        <div class="input-item">
-            <label for="loginPwd">密码</label>
-            <input type="password" id="loginPwd" placeholder="请输入密码">
-        </div>
+            <!-- 资料模块 -->
+            <section id="materialSection" class="content-section">
+                <div class="section-header">
+                    <h3>学习资料</h3>
+                    <button id="uploadMaterialBtn" class="btn teacher-only">上传资料</button>
+                    <input type="text" id="materialSearch" placeholder="搜索资料..." class="search-input">
+                </div>
+                <div class="material-categories">
+                    <span class="category-item active" data-cate="all">全部</span>
+                    <span class="category-item" data-cate="course">课件</span>
+                    <span class="category-item" data-cate="exercise">习题</span>
+                    <span class="category-item" data-cate="paper">试卷</span>
+                    <span class="category-item" data-cate="extend">拓展资料</span>
+                </div>
+                <div class="material-list" id="materialList"></div>
+            </section>
 
-        <div class="error-msg" id="loginErr"></div>
-        <button class="login-btn" onclick="handleLogin()">登录</button>
-        <p class="tip">没有账号？<span onclick="showReg()">立即注册</span></p>
+            <!-- 家校本模块 -->
+            <section id="homeworkSection" class="content-section">
+                <div class="section-header">
+                    <h3>家校本</h3>
+                    <button id="publishHomeworkBtn" class="btn teacher-only">发布作业</button>
+                </div>
+                <div class="homework-tabs">
+                    <div class="tab-item active" data-status="pending">待提交</div>
+                    <div class="tab-item" data-status="submitted">已提交</div>
+                    <div class="tab-item" data-status="corrected">已批改</div>
+                    <div class="tab-item" data-status="overdue">逾期未交</div>
+                </div>
+                <div class="homework-list" id="homeworkList"></div>
+            </section>
+
+            <!-- 班级公告模块 -->
+            <section id="announcementSection" class="content-section">
+                <div class="section-header">
+                    <h3>班级公告</h3>
+                    <button id="publishAnnounceBtn" class="btn teacher-only">发布公告</button>
+                </div>
+                <div class="announce-list" id="announceList"></div>
+            </section>
+
+            <!-- 个人中心模块 -->
+            <section id="personalSection" class="content-section">
+                <div class="section-header">
+                    <h3>个人中心</h3>
+                </div>
+                <div class="personal-container">
+                    <div class="personal-info">
+                        <div class="avatar">👤</div>
+                        <div class="info-form">
+                            <div class="form-group">
+                                <label>姓名</label>
+                                <input type="text" id="perName">
+                            </div>
+                            <div class="form-group">
+                                <label>学号/工号</label>
+                                <input type="text" id="perNo" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>联系方式</label>
+                                <input type="text" id="perPhone">
+                            </div>
+                            <button id="saveInfoBtn" class="btn">保存信息</button>
+                        </div>
+                    </div>
+                    <div class="settings">
+                        <h4>消息设置</h4>
+                        <label><input type="checkbox" id="msgRemind" checked> 开启消息提醒</label>
+                        <h4>密码修改</h4>
+                        <input type="password" id="oldPwd" placeholder="原密码">
+                        <input type="password" id="newPwd" placeholder="新密码">
+                        <button id="changePwdBtn" class="btn">修改密码</button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- 注册页 -->
-    <div class="login-box reg-page" id="regPage">
-        <h2>班级圈 - 注册</h2>
+    <!-- 底部版权 -->
+    <footer class="footer">
+        <p>© 2025 班级交流系统 - 版权所有</p>
+    </footer>
 
-        <div class="input-item">
-            <label for="regRole">身份</label>
-            <select id="regRole">
-                <option value="student">学生</option>
-                <option value="teacher">教师</option>
-                <option value="master">班主任</option>
-            </select>
-        </div>
-
-        <div class="input-item">
-            <label for="regSchool">学校</label>
-            <input type="text" id="regSchool" placeholder="请输入学校">
-        </div>
-
-        <div class="input-item">
-            <label for="regClass">班级</label>
-            <input type="text" id="regClass" placeholder="请输入班级">
-        </div>
-
-        <div class="input-item">
-            <label for="regName">姓名</label>
-            <input type="text" id="regName" placeholder="请输入姓名">
-        </div>
-
-        <div class="input-item">
-            <label for="regSno">学号/工号</label>
-            <input type="text" id="regSno" placeholder="请输入学号/工号">
-        </div>
-
-        <div class="input-item">
-            <label for="regPwd">密码</label>
-            <input type="password" id="regPwd" placeholder="请设置密码">
-        </div>
-
-        <div class="error-msg" id="regErr"></div>
-        <button class="login-btn" onclick="handleReg()">注册</button>
-        <p class="tip">已有账号？<span onclick="showLogin()">返回登录</span></p>
-    </div>
-
-    <!-- 主界面 -->
-    <div class="container" id="mainPage">
-        <div class="header">
-            <h2>班级圈</h2>
-            <div id="userInfo"></div>
-        </div>
-
-        <div class="nav">
-            <button class="active" onclick="goPage('home')">首页</button>
-            <button onclick="goPage('notice')">班级通知</button>
-            <button onclick="goPage('task')">作业管理</button>
-            <button onclick="goPage('circle')">班级动态</button>
-            <button onclick="goPage('user')">个人中心</button>
-        </div>
-
-        <div class="page show" id="home">
-            <h3>首页概况</h3><br>
-            <div class="card">
-                <h4>今日作业：数学试卷</h4>
-                <p>截止时间：2025-12-20 22:00</p>
-            </div>
-            <div class="card">
-                <h4>最新通知：明天早读检查背诵</h4>
-                <p>发布人：李老师</p>
-            </div>
-        </div>
-
-        <div class="page" id="notice">
-            <h3>班级通知</h3><br>
-            <div class="card">
-                <h4>【重要】本周五期中考试</h4>
-                <p>时间：8:00-10:00</p>
-            </div>
-        </div>
-
-        <div class="page" id="task">
-            <h3>作业管理</h3><br>
-            <div class="card">
-                <h4>数学：完成模拟卷第3套</h4>
-                <p>提交状态：未提交</p>
-            </div>
-        </div>
-
-        <div class="page" id="circle">
-            <h3>班级动态</h3><br>
-            <div class="publish-box">
-                <textarea placeholder="分享学习、活动、心情..."></textarea>
-                <button class="publish-btn">发布动态</button>
-            </div>
-        </div>
-
-        <div class="page" id="user">
-            <h3>个人中心</h3><br>
-            <p>身份：<span id="uRole"></span></p>
-            <p>学校：<span id="uSchool"></span></p>
-            <p>班级：<span id="uClass"></span></p>
-            <p>姓名：<span id="uName"></span></p>
-            <p>学号/工号：<span id="uSno"></span></p><br>
-            <button onclick="logout()" class="logout-btn">退出登录</button>
+    <!-- 通用弹窗 -->
+    <div id="commonModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
         </div>
     </div>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="toast"></div>
 
     <script src="script.js"></script>
+    <script src="notification.js"></script>
+    <script src="chat.js"></script>
+    <script src="material.js"></script>
+    <script src="homework.js"></script>
+    <script src="personalCenter.js"></script>
+    <script src="announcement.js"></script>
 </body>
 </html>
