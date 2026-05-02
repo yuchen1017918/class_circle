@@ -21,33 +21,21 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('rememberPwd').checked = true
     }
 
-    // 登录提交
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-        e.preventDefault()
-        const user = {
-            school: document.getElementById('school').value,
-            className: document.getElementById('className').value,
-            name: document.getElementById('name').value,
-            userNo: document.getElementById('userNo').value,
-            password: document.getElementById('password').value
-        }
-        const users = getData(STORAGE_KEYS.USERS)
-        const target = users.find(u => u.userNo === user.userNo && u.password === user.password)
-        
-        if (target) {
-            // 记住密码
-            if (document.getElementById('rememberPwd').checked) {
-                saveData(STORAGE_KEYS.REMEMBER, user)
-            } else {
-                localStorage.removeItem(STORAGE_KEYS.REMEMBER)
-            }
-            saveData(STORAGE_KEYS.CURRENT_USER, target)
-            alert('登录成功')
-            location.href = 'index.html'
+    // 替换原localStorage登录，改为接口请求
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userNo = document.getElementById('userNo').value;
+        const password = document.getElementById('password').value;
+  
+        const res = await post('/login', { userNo, password });
+        if (res.code === 200) {
+            localStorage.setItem('user', JSON.stringify(res.data));
+            alert('登录成功');
+            location.href = 'index.html';
         } else {
-            alert('账号或密码错误')
+            alert(res.msg);
         }
-    })
+    });
 
     // 注册弹窗
     document.getElementById('toRegister').addEventListener('click', () => {

@@ -31,6 +31,8 @@
                 <li data-target="homework" class="nav-item">📝 家校本</li>
                 <li data-target="announcement" class="nav-item">📌 班级公告</li>
                 <li data-target="personal" class="nav-item">👤 个人中心</li>
+                <li data-target="member" class="nav-item">👥 班级成员</li>
+                <li data-target="attendance" class="nav-item">📅 考勤管理</li>
             </ul>
         </aside>
 
@@ -144,6 +146,16 @@
                         <button id="changePwdBtn" class="btn">修改密码</button>
                     </div>
                 </div>
+            </section>
+            <section id="memberSection" class="content-section">
+                <h3>班级成员</h3>
+                <button class="teacher-only" onclick="addMember()">添加成员</button>
+                <div id="memberList"></div>
+            </section>
+            <section id="attendanceSection" class="content-section">
+                <h3>考勤管理</h3>
+                <button class="teacher-only" onclick="publishAttendance()">发布考勤</button>
+                <div id="attendanceList"></div>
             </section>
         </main>
     </div>
