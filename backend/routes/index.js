@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const OSS = require('aliyun-oss');
-const config = require('../config');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+const fs = require('fs');
 
 // 1. 登录接口
 router.post('/login', async (req, res) => {
@@ -34,13 +33,16 @@ router.post('/chat/add', async (req, res) => {
   res.send({ code: 200 });
 });
 
-// 4. 文件上传（OSS）
-const client = new OSS(config.OSS);
+// 4. 本地文件上传（修复版，无OSS、无报错）
 router.post('/upload', upload.single('file'), async (req, res) => {
-  const file = req.file;
-  const result = await client.put(`files/${Date.now()}-${file.originalname}`, fs.createReadStream(file.path));
-  fs.unlinkSync(file.path);
-  res.send({ code: 200, url: result.url });
+  try {
+    const file = req.file;
+    if (!fs.existsSync('uploads/')) fs.mkdirSync('uploads/');
+    const fileUrl = `http://localhost:3000/uploads/${file.filename}`;
+    res.send({ code: 200, url: fileUrl });
+  } catch (error) {
+    res.send({ code: 500, msg: '上传失败' });
+  }
 });
 
 // 5. 资料接口
@@ -59,23 +61,11 @@ router.get('/member/list', async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM class_members');
   res.send({ code: 200, data: rows });
 });
-router.post('/member/add', async (req, res) => {
-  await pool.query('INSERT INTO class_members SET ?', req.body);
-  res.send({ code: 200, msg: '添加成功' });
-});
 
 // 7. 考勤接口
 router.get('/attendance/list', async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM attendance ORDER BY create_time DESC');
   res.send({ code: 200, data: rows });
-});
-router.post('/attendance/add', async (req, res) => {
-  await pool.query('INSERT INTO attendance SET ?', req.body);
-  res.send({ code: 200, msg: '发布考勤成功' });
-});
-router.post('/attendance/check', async (req, res) => {
-  await pool.query('INSERT INTO attendance_record SET ?', req.body);
-  res.send({ code: 200, msg: '打卡成功' });
 });
 
 module.exports = router;
